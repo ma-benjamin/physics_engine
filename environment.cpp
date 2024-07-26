@@ -24,3 +24,19 @@ void Environment::Step(float dt) {
 		obj->updatePosition(dt);
 	}
 }
+
+void Environment::applyGravity() {
+	for (verletObject* obj : m_objects) {
+		obj->accelerate(m_gravity);
+	}
+}
+
+void Environment::applyConstraint() {
+	for (verletObject* obj : m_objects) {
+		const float dist = m_center.dist(obj->position_current);
+		if (dist > (1.0f - obj->circle->radius)) {
+			const vec2 n = (m_center - obj->position_current) / dist;
+			obj->position_current = m_center - n * (1.0f - obj->circle->radius);
+		}
+	}
+}
