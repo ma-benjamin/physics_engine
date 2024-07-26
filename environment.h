@@ -21,7 +21,6 @@ public:
 	void RemoveObject(verletObject* ob);
 
 	void Step(float dt);
-	void draw();
 };
 
 #endif
