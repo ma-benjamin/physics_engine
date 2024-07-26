@@ -5,7 +5,7 @@ verletObject::verletObject(vec2 pc, vec2 po, vec2 a, float r) {
 	position_old = po;
 	acceleration = a;
 	ID = NULL;
-	circle = new Circle(position_current.x, position_current.y, r, 6);
+	circle = new Circle(position_current.x, position_current.y, r, 100);
 }
  
 verletObject::~verletObject() {

@@ -1,5 +1,6 @@
 ﻿  circletest.cpp
 D:\Coding Projects\physics\physics\circletest.cpp(27,15): warning C4305: 'initializing': truncation from 'double' to 'float'
-D:\Coding Projects\physics\physics\circletest.cpp(47,15): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\Coding Projects\physics\physics\circletest.cpp(146,15): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Coding Projects\physics\physics\circletest.cpp(160,15): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  verletObject.cpp
+  Generating Code...
   physics.vcxproj -> D:\Coding Projects\physics\x64\Debug\physics.exe

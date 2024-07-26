@@ -39,23 +39,15 @@ int main() {
 	world.AddObject(v);
 
 	circ = v->circle;
+	Circle* circ1 = x->circle;
 	
 	std::vector<verletObject*> objects;
 	objects.push_back(v);
 	objects.push_back(x);
 
-	int num_objs = objects.size();
-	GLfloat* all_vertices = new GLfloat[num_objs * 18];
-	GLuint* all_indices = new GLuint[num_objs * 3];
-
-	//	indices[(i - 1) * 3] = 0;
-	//	indices[(i - 1) * 3 + 1] = i;
-	//	if (i == steps) {
-	//		indices[(i - 1) * 3 + 2] = 1;
-	//	} else {
-	//		indices[(i - 1) * 3 + 2] = i + 1;
-	//	}
-	//}
+	//int num_objs = objects.size();
+	//GLfloat* all_vertices = new GLfloat[num_objs * 18];
+	//GLuint* all_indices = new GLuint[num_objs * 3];
 
 	// printing all vertices
 	for (int i = 1; i < circ->steps * 6 + 6; i++) {
@@ -71,8 +63,10 @@ int main() {
 			std::cout << std::endl;
 		}
 		std::cout << circ->indices[i] << ',';
-		/*std::cout << circ->vertices[i] << ',' << std::endl;*/
 	}
+	std::cout << std::endl;
+
+	std::cout << circ->steps << std::endl;
 
     GLFWwindow* window = glfwCreateWindow(800, 800, "physics", NULL, NULL);
 
@@ -98,8 +92,8 @@ int main() {
 
 	VAO vao;
 	vao.Bind();
-	VBO vbo(circ->vertices, sizeof(circ->vertices) * (circ->steps + 1) * 3);
-	EBO ebo(circ->indices, sizeof(circ->indices) * (circ->steps + 1));
+	VBO vbo(circ->vertices, sizeof(circ->vertices) * (circ->steps + 1) * 6);
+	EBO ebo(circ->indices, sizeof(circ->indices) * (circ->steps) * 3);
 
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
 	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -108,6 +102,17 @@ int main() {
 	vbo.Unbind();
 	ebo.Unbind();
 
+	VAO vao1;
+	vao1.Bind();
+	VBO vbo1(circ1->vertices, sizeof(circ1->vertices) * (circ1->steps + 1) * 6);
+	EBO ebo1(circ1->indices, sizeof(circ1->indices) * (circ1->steps) * 3);
+
+	vao1.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	vao1.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	vao1.Unbind();
+	vbo1.Unbind();
+	ebo1.Unbind();
 	
 
 	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
@@ -123,6 +128,10 @@ int main() {
 		glUniform1f(uniID, 0.01f);
 		vao.Bind();
 		glDrawElements(GL_TRIANGLES, 3 * circ->steps, GL_UNSIGNED_INT, 0);
+		vao.Unbind();
+		vao1.Bind();
+		glDrawElements(GL_TRIANGLES, 3 * circ->steps, GL_UNSIGNED_INT, 0);
+		vao1.Unbind();
 		/*v->updatePosition(1);*/
 
 		glfwSwapBuffers(window);
@@ -133,6 +142,11 @@ int main() {
 	vao.Delete();
 	vbo.Delete();
 	ebo.Delete();
+
+	vao1.Delete();
+	vbo1.Delete();
+	ebo1.Delete();
+
 	shaderProgram.Delete();
 
 	glfwDestroyWindow(window);
