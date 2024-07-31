@@ -12,7 +12,7 @@
 struct Environment {
 private:
 	std::vector<verletObject*> m_objects;
-	vec2 m_gravity = vec2(0, -0.3f);
+	vec2 m_gravity = vec2(0, -9.8f);
 	vec2 m_center = vec2();
 	int m_time = 0;
 
@@ -21,6 +21,7 @@ public:
 	~Environment();
 	void AddObject(verletObject* ob);
 	void RemoveObject(verletObject* ob);
+	std::vector<verletObject*> returnObjects();
 
 	void Step(float dt);
 	void applyGravity();

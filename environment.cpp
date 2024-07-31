@@ -34,9 +34,15 @@ void Environment::applyGravity() {
 void Environment::applyConstraint() {
 	for (verletObject* obj : m_objects) {
 		const float dist = m_center.dist(obj->position_current);
-		if (dist > (1.0f - obj->circle->radius)) {
+		if (dist > (0.8f - obj->circle->radius)) {
 			const vec2 n = (m_center - obj->position_current) / dist;
-			obj->position_current = m_center - n * (1.0f - obj->circle->radius);
+			//std::cout << n.x << ',' << n.y << std::endl;
+			obj->position_current = m_center - n * (0.8f - obj->circle->radius);
+			obj->circle->updatePosition(obj->position_current.x, obj->position_current.y);
 		}
 	}
+}
+
+std::vector<verletObject*> Environment::returnObjects() {
+	return m_objects;
 }

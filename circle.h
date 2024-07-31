@@ -18,12 +18,11 @@ public:
 	
 
 	Circle(float centerX, float centerY, float r, int s);
+	Circle(float centerX, float centerY, float r, int s, float rv, float gv, float bv);
 
 	~Circle();
 
-	void updatePosition(float displaceX, float displaceY);
-
-	void draw();
+	void updatePosition(float x, float y);
 };
 
 #endif

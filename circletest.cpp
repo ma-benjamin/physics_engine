@@ -32,15 +32,19 @@ int main() {
 	vec2 a;
 
 	verletObject* v = new verletObject(pc, po, a, radius );
-	verletObject* x = new verletObject(vec2(0.3f, 0.0f), po, a, radius);
-	verletObject* y = new verletObject(vec2(0.0f, 0.3f), po, a, radius);
-	verletObject* nx = new verletObject(vec2(-0.3f, 0.0f), po, a, radius);
-	verletObject* ny = new verletObject(vec2(0.0f, -0.3f), po, a, radius);
+	verletObject* x = new verletObject(vec2(0.3f, 0.0f), vec2(0.3f, 0.0f), a, radius);
+	verletObject* y = new verletObject(vec2(0.0f, 0.3f), vec2(0.0f, 0.3f), a, radius);
+	verletObject* nx = new verletObject(vec2(-0.3f, 0.0f), vec2(-0.3f, 0.0f), a, radius);
+	verletObject* ny = new verletObject(vec2(0.0f, -0.3f), vec2(0.0f, -0.3f), a, radius);
 
 	Environment world;
 	world.AddObject(v);
+	world.AddObject(x);
+	world.AddObject(y);
+	world.AddObject(nx);
+	world.AddObject(ny);
 
-	circ = v->circle;
+	circ = x->circle;
 	
 	std::vector<verletObject*> objects;
 	objects.push_back(v);
@@ -53,24 +57,24 @@ int main() {
 	GLfloat* all_vertices = new GLfloat[num_objs * (circ->steps + 1) * 6];
 	GLuint* all_indices = new GLuint[num_objs * circ->steps * 3];
 
-	compile_circles(all_vertices, all_indices, objects);
+	compile_circles(all_vertices, all_indices, world.returnObjects());
 
 	// printing all vertices
-	for (int i = 1; i < (circ->steps * 6 + 6) * 2; i++) {
-		if (i % 6 == 0 && i > 0) {
-			std::cout << std::endl;
-		}
-		std::cout << all_vertices[i] << ',';
-		/*std::cout << circ->vertices[i] << ',' << std::endl;*/
-	}
-	std::cout << std::endl;
-	for (int i = 0; i < circ->steps * 6; i++) {
-		if (i % 3 == 0 && i > 0) {
-			std::cout << std::endl;
-		}
-		std::cout << all_indices[i] << ',';
-	}
-	std::cout << std::endl;
+	//for (int i = 1; i < (circ->steps * 6 + 6) * 2; i++) {
+	//	if (i % 6 == 0 && i > 0) {
+	//		std::cout << std::endl;
+	//	}
+	//	std::cout << all_vertices[i] << ',';
+	//	/*std::cout << circ->vertices[i] << ',' << std::endl;*/
+	//}
+	//std::cout << std::endl;
+	//for (int i = 0; i < circ->steps * 6; i++) {
+	//	if (i % 3 == 0 && i > 0) {
+	//		std::cout << std::endl;
+	//	}
+	//	std::cout << all_indices[i] << ',';
+	//}
+	//std::cout << std::endl;
 
     GLFWwindow* window = glfwCreateWindow(800, 800, "physics", NULL, NULL);
 
@@ -87,87 +91,76 @@ int main() {
     //load glad ato configures opengl
     gladLoadGL();
 
+	Circle border(0.0f, 0.0f, 0.8f, 100, 0.6f, 0.6f, 0.6f);
+	VAO vaoB;
+	vaoB.Bind();
+	VBO vboB(border.vertices, sizeof(border.vertices) * (border.steps + 1) * 6);
+	EBO eboB(border.indices, sizeof(border.indices) * border.steps * 3);
+
+	vaoB.LinkAttrib(vboB, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	vaoB.LinkAttrib(vboB, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	vaoB.Unbind();
+	vboB.Unbind();
+	eboB.Unbind();
+
     //specify the viewport of open in the window
     glViewport(0, 0, 800, 800);
 
-
-
 	Shader shaderProgram("default.vert", "default.frag");
 
-	//VAO vao;
-	//vao.Bind();
-	//VBO vbo(circ->vertices, sizeof(circ->vertices) * (circ->steps + 1) * 6);
-	//EBO ebo(circ->indices, sizeof(circ->indices) * (circ->steps) * 3);
+	float dt = 0;
 
-	//vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-	//vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	//vao.Unbind();
-	//vbo.Unbind();
-	//ebo.Unbind();
-
-	//VAO vao1;
-	//vao1.Bind();
-	//VBO vbo1(circ1->vertices, sizeof(circ1->vertices) * (circ1->steps + 1) * 6);
-	//EBO ebo1(circ1->indices, sizeof(circ1->indices) * (circ1->steps) * 3);
-
-	//vao1.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-	//vao1.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	//vao1.Unbind();
-	//vbo1.Unbind();
-	//ebo1.Unbind();
-
-	VAO tvao;
-	tvao.Bind();
-	VBO tvbo(all_vertices, sizeof(all_vertices) * (circ->steps + 1) * 6 * num_objs);
-	EBO tebo(all_indices, sizeof(all_indices) * (circ->steps) * 3 * num_objs);
-
-	tvao.LinkAttrib(tvbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-	tvao.LinkAttrib(tvbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	tvao.Unbind();
-	tvbo.Unbind();
-	tebo.Unbind();
-	
-
-	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
-
-	
-
-    while (!glfwWindowShouldClose(window))
-    {
+	while (!glfwWindowShouldClose(window))
+	{
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // navy
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		shaderProgram.Activate();
-		glUniform1f(uniID, 0.01f);
+
+		// border
+		vaoB.Bind();
+		glDrawElements(GL_TRIANGLES, 3 * border.steps, GL_UNSIGNED_INT, 0);
+		vaoB.Unbind();
+
+
+		VAO tvao;
 		tvao.Bind();
+		VBO tvbo(all_vertices, sizeof(all_vertices) * (circ->steps + 1) * 6 * num_objs);
+		EBO tebo(all_indices, sizeof(all_indices) * (circ->steps) * 3 * num_objs);
+
+		tvao.LinkAttrib(tvbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+		tvao.LinkAttrib(tvbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
 		glDrawElements(GL_TRIANGLES, num_objs * 3 * circ->steps, GL_UNSIGNED_INT, 0);
 		tvao.Unbind();
-		//vao1.Bind();
-		//glDrawElements(GL_TRIANGLES, 3 * circ->steps, GL_UNSIGNED_INT, 0);
-		//vao1.Unbind();
-		/*v->updatePosition(1);*/
+		tvbo.Unbind();
+		tebo.Unbind();
+
+		tvao.Delete();
+		tvbo.Delete();
+		tebo.Delete();
+
+		for (int i = 0; i < 3; i++) {
+			world.applyGravity();
+			world.applyConstraint();
+			world.Step(dt);
+			world.applyConstraint();
+		}
+		compile_circles(all_vertices, all_indices, world.returnObjects());
 
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
+
+		dt+= 0.00001;
 	}
 
-	//vao.Delete();
-	//vbo.Delete();
-	//ebo.Delete();
-
-	//vao1.Delete();
-	//vbo1.Delete();
-	//ebo1.Delete();
-
-	tvao.Delete();
-	tvbo.Delete();
-	tebo.Delete();
-
 	shaderProgram.Delete();
+
+	vaoB.Delete();
+	vboB.Delete();
+	eboB.Delete();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
