@@ -1,10 +1,10 @@
 #include "verletObject.h"
-#include <iostream>
 
 verletObject::verletObject(vec2 pc, vec2 po, vec2 a, float r) {
 	position_current = pc;
 	position_old = po;
 	acceleration = a;
+	radius = r;
 	circle = new Circle(position_current.x, position_current.y, r, 100);
 	ID = NULL;
 }
@@ -31,3 +31,4 @@ void verletObject::updatePosition(float dt) {
 void verletObject::accelerate(vec2 acceleration_new) {
 	acceleration += acceleration_new;
 }
+

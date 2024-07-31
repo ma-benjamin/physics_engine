@@ -46,3 +46,26 @@ void Environment::applyConstraint() {
 std::vector<verletObject*> Environment::returnObjects() {
 	return m_objects;
 }
+
+void Environment::checkCollisions(float dt) {
+	const float response_coef = 0.75f;
+	const int num_objects = m_objects.size();
+	for (int i = 0; i < num_objects; ++i) {
+		verletObject* ob1 = m_objects[i];
+
+		for (int k = i + 1; k < num_objects; ++k) {
+			verletObject* ob2 = m_objects[k];
+			const float dist = ob1->position_current.dist(ob2->position_current);
+			float min_dist = ob1->circle->radius + ob2->circle->radius;
+			if (dist < min_dist) {
+				const vec2 norm = (ob1->position_current - ob2->position_current).normalize();
+				float mr1 = ob1->radius / (ob1->radius + ob2->radius);
+				float mr2 = ob2->radius / (ob1->radius + ob2->radius);
+				const float delta = 0.5f * response_coef * (dist - min_dist);
+
+				ob1->position_current -= norm * (mr2 * delta);
+				ob2->position_current += norm * (mr1 * delta);
+			}
+		}
+	}
+}

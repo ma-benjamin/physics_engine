@@ -8,6 +8,7 @@ struct verletObject {
 	vec2 position_current;
 	vec2 position_old;
 	vec2 acceleration;
+	float radius;
 	Circle* circle;
 	int ID;
 

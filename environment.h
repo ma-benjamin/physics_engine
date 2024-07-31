@@ -26,6 +26,7 @@ public:
 	void Step(float dt);
 	void applyGravity();
 	void applyConstraint();
+	void checkCollisions(float dt);
 };
 
 #endif
