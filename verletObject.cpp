@@ -5,24 +5,20 @@ verletObject::verletObject(vec2 pc, vec2 po, vec2 a, float r) {
 	position_old = po;
 	acceleration = a;
 	radius = r;
-	circle = new Circle(position_current.x, position_current.y, r, 100);
-	ID = NULL;
+	ID = -1;
 }
  
-verletObject::~verletObject() {
-	delete circle;
-}
+verletObject::~verletObject() {}
 
 void verletObject::updatePosition(float dt) {
 	const vec2 velocity = position_current - position_old;
 	position_old = position_current;
 	position_current = position_current + velocity + acceleration * dt * dt;
 
-	if (position_current.y - circle->radius < -0.95) {
-		position_current.y = -0.95 + circle->radius;
+	if (position_current.y - radius < -0.95) {
+		position_current.y = -0.95 + radius;
 	}
 
-	circle->updatePosition(position_current.x, position_current.y);
 	acceleration = vec2{ 0,0 };
 
 

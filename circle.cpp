@@ -11,9 +11,9 @@ Circle::Circle(float centerX, float centerY, float r, const int s) {
 	vertices[0] = centerX;
 	vertices[1] = centerY;
 	vertices[2] = 0.0f;
-	vertices[3] = 0.8f;
-	vertices[4] = 0.3f;
-	vertices[5] = 0.002f;
+	vertices[3] = 1.0f;
+	vertices[4] = 1.0f;
+	vertices[5] = 1.0f;
 
 	const float twoPI = 2 * 3.14159265358979f;
 	for (int i = 1; i <= steps; i++) {
@@ -24,9 +24,9 @@ Circle::Circle(float centerX, float centerY, float r, const int s) {
 		vertices[i * 6] = centerX + x;
 		vertices[i * 6 + 1] = centerY + y;
 		vertices[i * 6 + 2] = 0.0f;
-		vertices[i * 6 + 3] = 0.8f;
-		vertices[i * 6 + 4] = 0.3f;
-		vertices[i * 6 + 5] = 0.02f;
+		vertices[i * 6 + 3] = 1.0f;
+		vertices[i * 6 + 4] = 1.0f;
+		vertices[i * 6 + 5] = 1.0f;
 
 		indices[(i - 1) * 3] = 0;
 		indices[(i - 1) * 3 + 1] = i;

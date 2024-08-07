@@ -2,14 +2,12 @@
 #define VERLET_OBJECT_H
 
 #include "vec2.h"
-#include "circle.h"
 
 struct verletObject {
 	vec2 position_current;
 	vec2 position_old;
 	vec2 acceleration;
 	float radius;
-	Circle* circle;
 	int ID;
 
 	verletObject(vec2 pc, vec2 po, vec2 a, float r);

@@ -10,6 +10,7 @@
 #include "environment.h"
 #include "verletObject.h"
 #include <vector>
+#include "utils.h"
 
 void compile_circles(GLfloat* all_vertices, GLuint* all_indices, std::vector<verletObject*> obs);
 
@@ -24,9 +25,8 @@ int main() {
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	float radius = 0.05;
+	float radius = 0.05f;
 
-	Circle* circ;
 	vec2 pc = vec2(0.0f, 0.0f);
 	vec2 po;
 	vec2 a;
@@ -43,8 +43,6 @@ int main() {
 	world.AddObject(y);
 	world.AddObject(nx);
 	world.AddObject(ny);
-
-	circ = x->circle;
 	
 	std::vector<verletObject*> objects;
 	objects.push_back(v);
@@ -54,13 +52,13 @@ int main() {
 	objects.push_back(ny);
 
 	int num_objs = objects.size();
-	GLfloat* all_vertices = new GLfloat[num_objs * (circ->steps + 1) * 6];
-	GLuint* all_indices = new GLuint[num_objs * circ->steps * 3];
+	GLfloat* all_vertices = new GLfloat[num_objs * (STEPS + 1) * 6];
+	GLuint* all_indices = new GLuint[num_objs * STEPS * 3];
 
 	compile_circles(all_vertices, all_indices, world.returnObjects());
 
 	// printing all vertices
-	//for (int i = 1; i < (circ->steps * 6 + 6) * 2; i++) {
+	//for (int i = 1; i < (STEPS * 6 + 6) * 2; i++) {
 	//	if (i % 6 == 0 && i > 0) {
 	//		std::cout << std::endl;
 	//	}
@@ -68,7 +66,7 @@ int main() {
 	//	/*std::cout << circ->vertices[i] << ',' << std::endl;*/
 	//}
 	//std::cout << std::endl;
-	//for (int i = 0; i < circ->steps * 6; i++) {
+	//for (int i = 0; i < STEPS * 6; i++) {
 	//	if (i % 3 == 0 && i > 0) {
 	//		std::cout << std::endl;
 	//	}
@@ -126,13 +124,13 @@ int main() {
 
 		VAO tvao;
 		tvao.Bind();
-		VBO tvbo(all_vertices, sizeof(all_vertices) * (circ->steps + 1) * 6 * num_objs);
-		EBO tebo(all_indices, sizeof(all_indices) * (circ->steps) * 3 * num_objs);
+		VBO tvbo(all_vertices, sizeof(all_vertices) * (STEPS + 1) * 6 * num_objs);
+		EBO tebo(all_indices, sizeof(all_indices) * (STEPS) * 3 * num_objs);
 
 		tvao.LinkAttrib(tvbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
 		tvao.LinkAttrib(tvbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
-		glDrawElements(GL_TRIANGLES, num_objs * 3 * circ->steps, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, num_objs * 3 * STEPS, GL_UNSIGNED_INT, 0);
 		tvao.Unbind();
 		tvbo.Unbind();
 		tebo.Unbind();
@@ -173,22 +171,22 @@ void compile_circles(GLfloat* all_vertices, GLuint* all_indices, std::vector<ver
 	int v_temp = 0;
 	int i_temp = 0;
 	for (verletObject* obj : obs) {
-		Circle* c = obj->circle;
-		for (int i = 0; i <= c->steps; i++) {
-			all_vertices[i * 6 + v_temp] = c->vertices[i * 6];
-			all_vertices[i * 6 + 1 + v_temp] = c->vertices[i * 6 + 1];
-			all_vertices[i * 6 + 2 + v_temp] = c->vertices[i * 6 + 2];
-			all_vertices[i * 6 + 3 + v_temp] = c->vertices[i * 6 + 3];
-			all_vertices[i * 6 + 4 + v_temp] = c->vertices[i * 6 + 4];
-			all_vertices[i * 6 + 5 + v_temp] = c->vertices[i * 6 + 5];
+		Circle c(obj->position_current.x, obj->position_current.y, obj->radius, STEPS);
+		for (int i = 0; i <= STEPS; i++) {
+			all_vertices[i * 6 + v_temp] = c.vertices[i * 6];
+			all_vertices[i * 6 + 1 + v_temp] = c.vertices[i * 6 + 1];
+			all_vertices[i * 6 + 2 + v_temp] = c.vertices[i * 6 + 2];
+			all_vertices[i * 6 + 3 + v_temp] = c.vertices[i * 6 + 3];
+			all_vertices[i * 6 + 4 + v_temp] = c.vertices[i * 6 + 4];
+			all_vertices[i * 6 + 5 + v_temp] = c.vertices[i * 6 + 5];
 		}
 
-		for (int i = 0; i < c->steps * 3; i++) {
-			all_indices[i + i_temp] = c->indices[i] + v_temp/6;
+		for (int i = 0; i < STEPS * 3; i++) {
+			all_indices[i + i_temp] = c.indices[i] + v_temp/6;
 		}
 
-		v_temp += (c->steps + 1) * 6;
-		i_temp += (c->steps) *3;
+		v_temp += (STEPS + 1) * 6;
+		i_temp += (STEPS) *3;
 
 	}
 }
