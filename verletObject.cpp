@@ -1,4 +1,5 @@
 #include "verletObject.h"
+#include <iostream>
 
 verletObject::verletObject(vec2 pc, vec2 po, vec2 a, float r) {
 	position_current = pc;
@@ -15,9 +16,13 @@ void verletObject::updatePosition(float dt) {
 	position_old = position_current;
 	position_current = position_current + velocity + acceleration * dt * dt;
 
-	if (position_current.y - radius < -0.95) {
-		position_current.y = -0.95 + radius;
-	}
+
+	//std::cout << dt << std::endl;
+	//std::cout << acceleration.y << std::endl;
+	//std::cout << velocity.y << std::endl;
+	//std::cout << position_current.x << ',' << position_current.y << std::endl;
+	//std::cout << (velocity + acceleration * dt * dt).y  << std::endl;
+	//std::cout << "=============================" << std::endl;
 
 	acceleration = vec2{ 0,0 };
 

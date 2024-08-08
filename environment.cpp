@@ -34,10 +34,9 @@ void Environment::applyGravity() {
 void Environment::applyConstraint() {
 	for (verletObject* obj : m_objects) {
 		const float dist = m_center.dist(obj->position_current);
-		if (dist > (0.8f - obj->radius)) {
+		if (dist > (1.0f - obj->radius)) {
 			const vec2 n = (m_center - obj->position_current) / dist;
-			//std::cout << n.x << ',' << n.y << std::endl;
-			obj->position_current = m_center - n * (0.8f - obj->radius);
+			obj->position_current = m_center - n * (1.0f - obj->radius);
 		}
 	}
 }
@@ -47,7 +46,7 @@ std::vector<verletObject*> Environment::returnObjects() {
 }
 
 void Environment::checkCollisions(float dt) {
-	const float response_coef = 0.75f;
+	const float response_coef = 1.25f;
 	const int num_objects = m_objects.size();
 	for (int i = 0; i < num_objects; ++i) {
 		verletObject* ob1 = m_objects[i];
@@ -56,12 +55,23 @@ void Environment::checkCollisions(float dt) {
 			verletObject* ob2 = m_objects[k];
 			const float dist = ob1->position_current.dist(ob2->position_current);
 			float min_dist = ob1->radius + ob2->radius;
-			if (dist < min_dist) {
+			if (dist <= min_dist) {
 				const vec2 norm = (ob1->position_current - ob2->position_current).normalize();
 				float mr1 = ob1->radius / (ob1->radius + ob2->radius);
 				float mr2 = ob2->radius / (ob1->radius + ob2->radius);
 				const float delta = 0.5f * response_coef * (dist - min_dist);
 
+				
+				//std::cout << dist << std::endl;
+				//std::cout << min_dist << std::endl;
+				//std::cout << norm.x << ',' << norm.y << std::endl;
+				//std::cout << mr1 << ',' << mr2 << std::endl;
+				//std::cout << delta << std::endl;
+				//std::cout << "=============================" << std::endl;
+
+
+				//ob1->position_old = ob1->position_current;
+				//ob2->position_old = ob2->position_current;
 				ob1->position_current -= norm * (mr2 * delta);
 				ob2->position_current += norm * (mr1 * delta);
 			}
