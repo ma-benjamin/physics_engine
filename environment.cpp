@@ -13,6 +13,11 @@ void Environment::AddObject(verletObject* ob) {
 	ob->ID = m_objects.size();
 }
 
+void Environment::AddObject(float xpos, float ypos, float radius, vec2 velocity) {
+	verletObject* v = new verletObject(vec2(xpos, ypos), vec2(xpos - velocity.x, ypos - velocity.y), vec2(), radius);
+	AddObject(v);
+}
+
 void Environment::RemoveObject(verletObject* ob) {
 	if (!ob) return;
 	if (ob->ID == NULL) return;

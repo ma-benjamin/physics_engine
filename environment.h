@@ -18,6 +18,7 @@ public:
 	Environment();
 	~Environment();
 	void AddObject(verletObject* ob);
+	void AddObject(float xpos, float ypos, float radius, vec2 velocity);
 	void RemoveObject(verletObject* ob);
 	std::vector<verletObject*> returnObjects();
 

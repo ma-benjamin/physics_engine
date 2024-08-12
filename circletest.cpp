@@ -123,7 +123,7 @@ int main() {
 	float frames = 120;
 	float time = 0;
 	float substep = 4;
-	float dt = 1 / frames;
+	float dt = 0.1 / frames;
 	float stepdt = dt / substep;
 
 
