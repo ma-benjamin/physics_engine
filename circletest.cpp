@@ -15,11 +15,25 @@
 
 void compile_circles(GLfloat* all_vertices, GLuint* all_indices, std::vector<verletObject*> obs);
 
+//Environment world;
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-		std::cout << 1 << std::endl;
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		double xpos;
+		double ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		std::cout << xpos/WIDTH << ',' << ypos/HEIGHT << std::endl;
+		verletObject* a = new verletObject(vec2(xpos / WIDTH, ypos / HEIGHT), 
+										   vec2(xpos / WIDTH, ypos / HEIGHT), 
+										   vec2(0.0f, 0.0f), 
+										   0.05f);
+		//world.AddObject(a);
+	}
 }
+
+
+
+
 
 int main() {
     // Initialize GLFW
@@ -48,51 +62,70 @@ int main() {
 	world.AddObject(v);
 	world.AddObject(x);
 	world.AddObject(y);
-	//world.AddObject(nx);
+	world.AddObject(nx);
 	world.AddObject(ny);
 
-	int num_objs = world.returnObjects().size();
-	GLfloat* all_vertices = new GLfloat[num_objs * (STEPS + 1) * 6];
-	GLuint* all_indices = new GLuint[num_objs * STEPS * 3];
+	verletObject* ax = new verletObject(vec2(0.3f, 0.0f), vec2(0.5f, 0.0f), a, radius);
+	verletObject* ay = new verletObject(vec2(0.0f, 0.1f), vec2(0.0f, 0.1f), a, radius);
+	verletObject* anx = new verletObject(vec2(-0.3f, 0.0f), vec2(-0.3f, 0.0f), a, radius);
+	verletObject* any = new verletObject(vec2(0.0f, -0.6f), vec2(0.0f, -0.6f), a, radius);
 
+	world.AddObject(ax);
+	world.AddObject(ay);
+	world.AddObject(anx);
+	world.AddObject(any);
+	
+	
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "physics", NULL, NULL);
+	glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 
-    // error check is window fail to create
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
+		// error check is window fail to create
+		if (window == NULL)
+		{
+			std::cout << "Failed to create GLFW window" << std::endl;
+			glfwTerminate();
+			return -1;
+		}
 
-    // introduce window into the current context
-    glfwMakeContextCurrent(window);
-    //load glad ato configures opengl
-    gladLoadGL();
+		// introduce window into the current context
+		glfwMakeContextCurrent(window);
+		//load glad ato configures opengl
+		gladLoadGL();
 
 	Circle border(0.0f, 0.0f, (float) 800.0f / HEIGHT, 100, 0.6f, 0.6f, 0.6f);
-	VAO vaoB;
-	vaoB.Bind();
-	VBO vboB(border.vertices, sizeof(border.vertices) * (border.steps + 1) * 6);
-	EBO eboB(border.indices, sizeof(border.indices) * border.steps * 3);
+		VAO vaoB;
+		vaoB.Bind();
+		VBO vboB(border.vertices, sizeof(border.vertices) * (border.steps + 1) * 6);
+		EBO eboB(border.indices, sizeof(border.indices) * border.steps * 3);
 
-	vaoB.LinkAttrib(vboB, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-	vaoB.LinkAttrib(vboB, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		vaoB.LinkAttrib(vboB, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+		vaoB.LinkAttrib(vboB, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	vaoB.Unbind();
-	vboB.Unbind();
-	eboB.Unbind();
+		vaoB.Unbind();
+		vboB.Unbind();
+		eboB.Unbind();
 
     //specify the viewport of open in the window
     glViewport(0, 0, WIDTH, HEIGHT);
 
 	Shader shaderProgram("default.vert", "default.frag");
 
-	float dt = 0;
-
 	std::chrono::seconds dura(20);
 
 	float pressed = 0;
+	//glfwSetMouseButtonCallback(window, mouse_button_callback);
+
+	int num_objs = world.returnObjects().size();
+	GLfloat* all_vertices = new GLfloat[num_objs * (STEPS + 1) * 6];
+	GLuint* all_indices = new GLuint[num_objs * STEPS * 3];
+	compile_circles(all_vertices, all_indices, world.returnObjects());
+
+	float frames = 120;
+	float time = 0;
+	float substep = 4;
+	float dt = 1 / frames;
+	float stepdt = dt / substep;
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -108,27 +141,37 @@ int main() {
 
 		int mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 		if (mouseState == GLFW_PRESS) {
-			if (dt - pressed > 0.0001) {
-				pressed = dt;
-				std::cout << "pressed at " << dt << std::endl;
+			if (time - pressed > 3.5) {
+				pressed = time;
+				std::cout << "pressed at " << time << std::endl;
 				double xpos;
 				double ypos;
 				glfwGetCursorPos(window, &xpos, &ypos);
 				std::cout << xpos << ',' << ypos << std::endl;
-				verletObject* ab = new verletObject(vec2(xpos, ypos), vec2(xpos, ypos), a, radius);
-				//world.AddObject(ab);
+				float scaled_x = (xpos - (WIDTH / 2)) / (WIDTH / 2);
+				float scaled_y = -1 * (ypos - (HEIGHT / 2)) / (HEIGHT / 2);
+				std::cout << scaled_x << ',' << scaled_y << std::endl;
+				verletObject* ab = new verletObject(vec2(scaled_x, scaled_y), vec2(scaled_x, scaled_y), a, radius);
+				world.AddObject(ab);
+
+				GLfloat* temp_v = all_vertices;
+				GLuint* temp_i = all_indices;
+
+				num_objs = world.returnObjects().size();
+				all_vertices = new GLfloat[num_objs * (STEPS + 1) * 6];
+				all_indices = new GLuint[num_objs * STEPS * 3];
+
+				delete[] temp_v;
+				delete[] temp_i;
 			}
 		}
-
-		//glfwSetMouseButtonCallback(window, mouse_button_callback);
-
 
 		compile_circles(all_vertices, all_indices, world.returnObjects());
 
 		VAO tvao;
 		tvao.Bind();
-		VBO tvbo(all_vertices, sizeof(all_vertices) * (STEPS + 1) * 6 * num_objs);
-		EBO tebo(all_indices, sizeof(all_indices) * (STEPS) * 3 * num_objs);
+		VBO tvbo(all_vertices, sizeof(float) * (STEPS + 1) * 6 * num_objs);
+		EBO tebo(all_indices, sizeof(float) * (STEPS) * 3 * num_objs);
 
 		tvao.LinkAttrib(tvbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
 		tvao.LinkAttrib(tvbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -143,12 +186,14 @@ int main() {
 		tebo.Delete();
 
 
-		for (int i = 0; i < 1; i++) {
+
+		for (int i = 0; i < substep; i++) {
 			world.applyGravity();
-			world.checkCollisions(dt);
+			world.checkCollisions(stepdt);
 			world.applyConstraint();
-			world.Step(dt);
+			world.Step(stepdt);
 		}
+		
 		//world.applyGravity();
 		//world.checkCollisions(dt);
 		//world.applyConstraint();
@@ -160,7 +205,7 @@ int main() {
 
 		glfwPollEvents();
 
-		dt+= 0.00000001;
+		time += dt;
 		
 	}
 
@@ -177,7 +222,6 @@ int main() {
 
 
 void compile_circles(GLfloat* all_vertices, GLuint* all_indices, std::vector<verletObject*> obs) {
-	int num_objs = obs.size();
 	int v_temp = 0;
 	int i_temp = 0;
 	for (verletObject* obj : obs) {

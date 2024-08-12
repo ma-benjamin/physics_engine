@@ -5,11 +5,12 @@
 #include "vec2.h"
 #include "verletObject.h"
 #include "shaderClass.h"
+#include "utils.h"
 
 struct Environment {
 private:
 	std::vector<verletObject*> m_objects;
-	vec2 m_gravity = vec2(0, -0.98f);
+	vec2 m_gravity = vec2(0, -9.8f / HEIGHT);
 	vec2 m_center = vec2();
 	int m_time = 0;
 

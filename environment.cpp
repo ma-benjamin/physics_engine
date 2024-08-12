@@ -4,7 +4,9 @@ Environment::Environment() {
 	//shaderProgram = new Shader("default.vert", "default.frag");
 };
 
-Environment::~Environment() {};
+Environment::~Environment() {
+	m_objects.clear();
+};
 
 void Environment::AddObject(verletObject* ob) {
 	m_objects.push_back(ob);
@@ -34,7 +36,7 @@ void Environment::applyGravity() {
 void Environment::applyConstraint() {
 	for (verletObject* obj : m_objects) {
 		const float dist = m_center.dist(obj->position_current);
-		if (dist > (1.0f - obj->radius)) {
+		if (dist >= (1.0f - obj->radius)) {
 			const vec2 n = (m_center - obj->position_current) / dist;
 			obj->position_current = m_center - n * (1.0f - obj->radius);
 		}
@@ -55,7 +57,7 @@ void Environment::checkCollisions(float dt) {
 			verletObject* ob2 = m_objects[k];
 			const float dist = ob1->position_current.dist(ob2->position_current);
 			float min_dist = ob1->radius + ob2->radius;
-			if (dist <= min_dist) {
+			if (dist < min_dist) {
 				const vec2 norm = (ob1->position_current - ob2->position_current).normalize();
 				float mr1 = ob1->radius / (ob1->radius + ob2->radius);
 				float mr2 = ob2->radius / (ob1->radius + ob2->radius);
