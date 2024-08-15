@@ -1,8 +1,6 @@
 #include "environment.h"
 
-Environment::Environment() {
-	//shaderProgram = new Shader("default.vert", "default.frag");
-};
+Environment::Environment() {};
 
 Environment::~Environment() {
 	m_objects.clear();
@@ -53,7 +51,7 @@ std::vector<verletObject*> Environment::returnObjects() {
 }
 
 void Environment::checkCollisions(float dt) {
-	const float response_coef = 1.25f;
+	const float response_coef = 0.75f;
 	const int num_objects = m_objects.size();
 	for (int i = 0; i < num_objects; ++i) {
 		verletObject* ob1 = m_objects[i];
@@ -85,3 +83,57 @@ void Environment::checkCollisions(float dt) {
 		}
 	}
 }
+
+void Environment::addObjectsToGrid() {
+	grid.clear();
+	int i = 0;
+	for (const verletObject* obj : m_objects) {
+		int translated_x = (obj->position_current.x + 1) * WIDTH / 2;
+		int translated_y = (-obj->position_current.y + 1) * HEIGHT / 2;
+		grid.addAtom(translated_x, translated_y, i);
+		++i;
+	}
+};
+
+void Environment::solveContact(int idx1, int idx2) {
+	const float response_coef = 1.0f;
+	const float eps = 0.0001f;
+	verletObject* obj1 = m_objects.at(idx1);
+	verletObject* obj2 = m_objects.at(idx2);
+	const float dist = (obj1->position_current).dist(obj2->position_current);
+
+	if (dist < 1.0f && dist > eps) {
+		const float delta = response_coef * 0.5f * (1.0f - dist);
+		const vec2 col_vec = (obj1->position_current - obj2->position_current) / dist * delta;
+		obj1->position_current += col_vec;
+		obj2->position_current -= col_vec;
+	}
+
+};
+
+void Environment::checkAtomCellCollisions(int atom_idx, const CollisionCell& c) {
+	for (int i = 0; i < c.objects_count; ++i) {
+		solveContact(atom_idx, c.objects[i]);
+	}
+};
+
+void Environment::processCell(const CollisionCell& c, int index) {
+	for (int i = 0; i < c.objects_count; ++i) {
+		const int atom_idx = c.objects[i];
+		checkAtomCellCollisions(atom_idx, grid.data[index - 1]);
+		checkAtomCellCollisions(atom_idx, grid.data[index]);
+		checkAtomCellCollisions(atom_idx, grid.data[index + 1]);
+		checkAtomCellCollisions(atom_idx, grid.data[index + grid.height - 1]);
+		checkAtomCellCollisions(atom_idx, grid.data[index + grid.height]);
+		checkAtomCellCollisions(atom_idx, grid.data[index + grid.height + 1]);
+		checkAtomCellCollisions(atom_idx, grid.data[index - grid.height - 1]);
+		checkAtomCellCollisions(atom_idx, grid.data[index - grid.height]);
+		checkAtomCellCollisions(atom_idx, grid.data[index - grid.height + 1]);
+	}
+};
+
+void Environment::solveCollision() {
+	for (int i = 0; i < grid.data.size(); ++i) {
+		processCell(grid.data[i], i);
+	}
+};

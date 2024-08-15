@@ -6,6 +6,7 @@
 #include "verletObject.h"
 #include "shaderClass.h"
 #include "utils.h"
+#include "collision_grid.h"
 
 struct Environment {
 private:
@@ -13,6 +14,7 @@ private:
 	vec2 m_gravity = vec2(0, -9.8f / HEIGHT);
 	vec2 m_center = vec2();
 	int m_time = 0;
+	CollisionGrid grid = CollisionGrid(WIDTH, HEIGHT);
 
 public:
 	Environment();
@@ -26,6 +28,13 @@ public:
 	void applyGravity();
 	void applyConstraint();
 	void checkCollisions(float dt);
+
+	//using collision_grid
+	void AddObjectsToGrid();
+	void solveContact(int idx1, int idx2);
+	void checkAtomCellCollisions(int atom_idx, const CollisionCell& c);
+	void processCell(const CollisionCell& c, int index);
+	void solveCollision();
 };
 
 #endif
