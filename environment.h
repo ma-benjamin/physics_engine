@@ -30,7 +30,7 @@ public:
 	void checkCollisions(float dt);
 
 	//using collision_grid
-	void AddObjectsToGrid();
+	void addObjectsToGrid();
 	void solveContact(int idx1, int idx2);
 	void checkAtomCellCollisions(int atom_idx, const CollisionCell& c);
 	void processCell(const CollisionCell& c, int index);
